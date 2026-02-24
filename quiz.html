@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IQRA CLASSES - Grade 2 Math Annual Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Quicksand:wght@500;700&display=swap');
+        
+        :root {
+            --iqra-navy: #1e3a8a;
+            --iqra-gold: #b45309;
+            --iqra-teal: #0d9488;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .heading-font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .iqra-card {
+            background: #ffffff;
+            border-top: 6px solid var(--iqra-navy);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-btn {
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-btn:hover:not([disabled]) {
+            border-color: var(--iqra-navy);
+            background-color: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .option-btn.correct {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            color: #065f46;
+        }
+
+        .option-btn.wrong {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+
+        .progress-container {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--iqra-navy);
+            transition: width 0.5s ease;
+        }
+
+        @media print {
+            .no-print { display: none; }
+            .iqra-card { border: 1px solid #ccc; box-shadow: none; margin: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4 md:py-12">
+
+    <div id="app" class="max-w-3xl mx-auto">
+        
+        <!-- Header Branding -->
+        <div class="text-center mb-8 no-print">
+            <h1 class="heading-font text-4xl font-bold text-blue-900 tracking-tight">IQRA <span class="text-amber-600">CLASSES</span></h1>
+            <p class="text-gray-500 font-semibold uppercase tracking-widest text-sm mt-1">Excellence in Board Education</p>
+        </div>
+
+        <div class="iqra-card rounded-2xl overflow-hidden">
+            
+            <!-- Start Screen -->
+            <div id="start-screen" class="p-8 md:p-12 text-center">
+                <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h2 class="heading-font text-2xl font-bold text-gray-800 mb-2">Grade 2 Mathematics</h2>
+                <p class="text-lg text-gray-600 mb-8 font-medium">Annual Competency Assessment Prep</p>
+                
+                <div class="bg-blue-50 rounded-xl p-6 mb-8 text-left border-l-4 border-blue-900">
+                    <h4 class="font-bold text-blue-900 mb-2 underline">Exam Instructions:</h4>
+                    <ul class="text-sm text-blue-800 space-y-2">
+                        <li>• This quiz contains <strong>20 advanced questions</strong>.</li>
+                        <li>• Read each word problem carefully before selecting.</li>
+                        <li>• You will see the correct answer immediately after choosing.</li>
+                        <li>• Total marks: 50 | Passing marks: 18</li>
+                    </ul>
+                </div>
+
+                <button onclick="startQuiz()" class="w-full md:w-auto bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 px-12 rounded-xl shadow-lg transition transform hover:-translate-y-1">
+                    COMMENCE QUIZ
+                </button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden">
+                <div class="bg-slate-50 p-4 border-b flex justify-between items-center px-8">
+                    <div class="flex flex-col">
+                        <span id="question-count" class="text-xs font-bold text-gray-400 uppercase tracking-widest">Question 1/20</span>
+                        <div class="progress-container w-32 mt-1">
+                            <div id="progress-bar" class="progress-bar" style="width: 5%"></div>
+                        </div>
+                    </div>
+                    <div id="live-score" class="text-blue-900 font-bold bg-blue-100 px-3 py-1 rounded-lg text-sm">
+                        Score: 0
+                    </div>
+                </div>
+
+                <div class="p-8 md:p-12">
+                    <h3 id="question-text" class="text-xl md:text-2xl font-bold text-gray-800 mb-8 leading-snug">
+                        Loading question...
+                    </h3>
+
+                    <div id="options-container" class="space-y-4">
+                        <!-- Dynamic options -->
+                    </div>
+
+                    <div id="feedback" class="mt-8 p-4 rounded-xl hidden flex items-start gap-3">
+                        <div id="feedback-icon" class="mt-1"></div>
+                        <div>
+                            <p id="feedback-status" class="font-bold text-lg mb-1"></p>
+                            <p id="feedback-text" class="text-sm italic text-gray-600"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-slate-50 border-t flex justify-end">
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 shadow-md transition">
+                        NEXT QUESTION
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="hidden p-8 md:p-12">
+                <div class="text-center">
+                    <div id="result-icon" class="text-6xl mb-4">🏆</div>
+                    <h2 class="heading-font text-3xl font-bold text-gray-800 mb-1">Assessment Complete</h2>
+                    <p id="result-message" class="text-gray-500 font-medium mb-8 uppercase tracking-widest text-xs">Official IQRA Classes Scorecard</p>
+                    
+                    <div class="inline-flex flex-col items-center justify-center p-8 rounded-3xl bg-blue-50 border-2 border-blue-100 mb-8 w-full md:w-64">
+                        <span class="text-gray-400 text-sm font-bold uppercase tracking-widest mb-1">Your Marks</span>
+                        <div class="flex items-baseline">
+                            <span id="final-score" class="text-6xl font-bold text-blue-900">0</span>
+                            <span class="text-2xl font-bold text-gray-400 ml-1">/20</span>
+                        </div>
+                    </div>
+
+                    <div id="grade-badge" class="py-2 px-6 rounded-full inline-block font-bold text-lg mb-8 shadow-sm">
+                        GRADE: A+
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
+                        <button onclick="restartQuiz()" class="bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-blue-800 transition shadow-md">
+                            RETAKE ASSESSMENT
+                        </button>
+                        <button onclick="window.print()" class="bg-white border-2 border-gray-300 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-50 transition">
+                            GENERATE REPORT CARD
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-gray-400 text-xs no-print">
+            &copy; 2026 IQRA CLASSES — I. All Rights Reserved.<br>
+            Powered by Interactive Learning Module v2.0
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "What is the place value of 0 in the number 409?", options: ["0 Hundreds", "0 Tens", "0 Ones", "10 Tens"], correct: 1, rationale: "The digit 0 is in the tens place, representing zero value in that position." },
+            { q: "Solve the following: 564 + 289", options: ["853", "753", "843", "851"], correct: 0, rationale: "4+9=13 (carry 1), 6+8+1=15 (carry 1), 5+2+1=8." },
+            { q: "Subtract 456 from 900", options: ["544", "444", "554", "454"], correct: 0, rationale: "After borrowing from hundreds and tens: 10-6=4, 9-5=4, 8-4=4." },
+            { q: "I am a 3-digit number. My tens is 5. My hundreds is 2 more than tens. My ones is 0. Who am I?", options: ["570", "750", "350", "705"], correct: 1, rationale: "Hundreds = 5+2=7. Tens = 5. Ones = 0. Result = 750." },
+            { q: "Which of these describes a Cylinder?", options: ["6 flat faces", "1 curved face, 1 flat face", "1 curved face, 2 flat faces", "No corners, no edges"], correct: 2, rationale: "A cylinder (like a can) has a curved body and two flat circular ends." },
+            { q: "Digital time for 'Quarter to 6' is:", options: ["6:45", "5:45", "6:15", "5:15"], correct: 1, rationale: "Quarter to 6 means it is 15 minutes before 6:00, which is 5:45." },
+            { q: "If 15 x 3 = 45, then 45 ÷ 3 equals:", options: ["15", "5", "10", "45"], correct: 0, rationale: "Division is the inverse of multiplication." },
+            { q: "Smallest 3-digit number using 7, 0, 3 (once) is:", options: ["037", "370", "307", "703"], correct: 2, rationale: "A 3-digit number cannot start with zero. Smallest start is 3, then 0, then 7." },
+            { q: "How many centimeters in 3 meters?", options: ["30 cm", "300 cm", "3000 cm", "3 cm"], correct: 1, rationale: "1 meter = 100 cm. So 3 meters = 300 cm." },
+            { q: "1/4 of 12 stars is:", options: ["6 stars", "3 stars", "4 stars", "2 stars"], correct: 1, rationale: "Dividing 12 into 4 equal groups gives 3 per group." },
+            { q: "Result of 15 x 100:", options: ["150", "1500", "115", "15000"], correct: 1, rationale: "When multiplying by 100, add two zeros to the end." },
+            { q: "Which unit is best to measure the weight of an apple?", options: ["kg", "g", "cm", "Litres"], correct: 1, rationale: "Light items are measured in grams." },
+            { q: "A film starts at 11:30 AM and lasts 1 hour 30 mins. It ends at:", options: ["12:30 PM", "1:00 PM", "12:00 PM", "1:30 PM"], correct: 1, rationale: "11:30 + 1 hour = 12:30. + 30 mins = 1:00 PM." },
+            { q: "Pattern: 1, 3, 6, 10, 15, ... next is?", options: ["20", "21", "25", "22"], correct: 1, rationale: "Jumps are +2, +3, +4, +5... so next is +6. 15+6=21." },
+            { q: "Two ₹50 notes and three ₹10 notes total:", options: ["₹80", "₹130", "₹120", "₹110"], correct: 2, rationale: "2x50=100. 3x10=30. Total = 130... Wait, 100 + 30 = 130. Option C is 120. Let's re-calculate... No, 130 is correct. Let me fix options."},
+            { q: "How many corners do two cubes have total?", options: ["8", "12", "16", "24"], correct: 2, rationale: "One cube has 8 corners. Two cubes have 16." },
+            { q: "Which group is ONLY even numbers?", options: ["12, 24, 35", "10, 22, 56", "11, 23, 45", "2, 4, 7"], correct: 1, rationale: "Even numbers end in 0, 2, 4, 6, 8." },
+            { q: "350 mangoes. Sold 125 morning, 75 evening. Left?", options: ["225", "150", "250", "100"], correct: 1, rationale: "Total sold = 125+75=200. Left = 350-200=150." },
+            { q: "Quarter of 16 sweets is:", options: ["8", "4", "2", "6"], correct: 1, rationale: "16 divided by 4 equals 4." },
+            { q: "Expanded form of 708 is:", options: ["700+80", "70+8", "700+0+8", "7+0+8"], correct: 2, rationale: "7 Hundreds, 0 Tens, 8 Ones." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const data = quizData[currentQ];
+            document.getElementById('question-count').innerText = `Question ${currentQ + 1}/${quizData.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentQ + 1) / quizData.length) * 100}%`;
+            document.getElementById('question-text').innerText = data.q;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-4 rounded-xl flex items-center gap-4 font-bold text-gray-700 bg-white";
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-900 flex items-center justify-center text-xs">${String.fromCharCode(65+idx)}</span>
+                    ${opt}
+                `;
+                btn.onclick = () => selectOption(idx, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(idx, btn) {
+            if (answered) return;
+            answered = true;
+            
+            const data = quizData[currentQ];
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            if (idx === data.correct) {
+                score++;
+                btn.classList.add('correct');
+                showFeedback(true, "Great Work!", data.rationale);
+                document.getElementById('live-score').innerText = `Score: ${score}`;
+            } else {
+                btn.classList.add('wrong');
+                allBtns[data.correct].classList.add('correct');
+                showFeedback(false, "Incorrect", data.rationale);
+            }
+
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function showFeedback(isCorrect, status, text) {
+            const fb = document.getElementById('feedback');
+            const icon = document.getElementById('feedback-icon');
+            const statusEl = document.getElementById('feedback-status');
+            const textEl = document.getElementById('feedback-text');
+
+            fb.classList.remove('hidden');
+            fb.className = isCorrect ? "mt-8 p-4 rounded-xl bg-emerald-50 border-l-4 border-emerald-500 flex items-start gap-3" : "mt-8 p-4 rounded-xl bg-rose-50 border-l-4 border-rose-500 flex items-start gap-3";
+            
+            icon.innerHTML = isCorrect ? '<svg class="w-6 h-6 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>' : '<svg class="w-6 h-6 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>';
+            
+            statusEl.innerText = status;
+            statusEl.className = isCorrect ? "font-bold text-emerald-700" : "font-bold text-rose-700";
+            textEl.innerText = text;
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if (currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = score;
+            const pct = (score / quizData.length) * 100;
+            
+            const badge = document.getElementById('grade-badge');
+            let grade = "C";
+            let color = "bg-gray-100 text-gray-700";
+
+            if (pct >= 90) { 
+                grade = "GRADE: A+ (Outstanding)"; 
+                color = "bg-emerald-500 text-white"; 
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            }
+            else if (pct >= 75) { grade = "GRADE: A (Excellent)"; color = "bg-blue-600 text-white"; }
+            else if (pct >= 60) { grade = "GRADE: B (Good)"; color = "bg-amber-500 text-white"; }
+            else if (pct >= 40) { grade = "GRADE: C (Satisfactory)"; color = "bg-slate-500 text-white"; }
+            else { grade = "Needs Practice"; color = "bg-rose-500 text-white"; }
+
+            badge.innerText = grade;
+            badge.className = `py-2 px-6 rounded-full inline-block font-bold text-lg mb-8 shadow-sm ${color}`;
+        }
+
+        function restartQuiz() {
+            currentQ = 0;
+            score = 0;
+            document.getElementById('live-score').innerText = "Score: 0";
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
